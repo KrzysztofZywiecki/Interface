@@ -246,10 +246,10 @@ def draw_graphs(df):
 
 
 
-def read_file(file_uploader, id="Case ID", event_tresh=0):
+def read_file(file_uploader, separator=',', id="Case ID", event_tresh=0):
     if file_uploader.name.endswith(".csv"):
         stringio = StringIO(file_uploader.getvalue().decode("utf-8"))
-        df = pd.read_csv(stringio)
+        df = pd.read_csv(stringio, sep=separator)
     # elif file_uploader.name.endswith(".xes"):
     #     df = pm4py.convert_to_dataframe(pm4py.read_xes(filename))
     #     df = df.drop(
