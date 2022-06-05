@@ -2,7 +2,7 @@ import pygraphviz as pgv
 import itertools
 from collections import defaultdict
 from typing import Dict, Set
-from IPython.display import Image, display
+from PIL import Image
 from collections import Counter
 from ipywidgets import interact
 import ipywidgets as widgets
@@ -241,7 +241,8 @@ def draw_graphs(df):
         G.add_edge(list(end_objects)[0], "end")
 
     G.draw('simple_process_model.png', prog='dot')
-    display(Image('simple_process_model.png'))
+    image = Image.open('simple_process_model.png')
+    return image
 
 
 
