@@ -14,6 +14,8 @@ import numpy as np
 from collections import Counter
 from io import StringIO
 import streamlit as st
+from tempfile import *
+import os
 
 def get_causality(direct_succession) -> Dict[str, Set[str]]:
     causality = defaultdict(set)
@@ -252,11 +254,15 @@ def read_file(file_uploader, separator=',', id="Case ID"):
     if file_uploader.name.endswith(".csv"):
         stringio = StringIO(file_uploader.getvalue().decode("utf-8"))
         df = pd.read_csv(stringio, sep=separator)
-    # elif file_uploader.name.endswith(".xes"):
-    #     df = pm4py.convert_to_dataframe(pm4py.read_xes(filename))
-    #     df = df.drop(
-    #         columns=['concept:name', 'lifecycle:transition', 'case:concept:name', 'case:variant', 'case:creator'])
-    #     df.rename(columns={'case:variant-index': id, 'Activity': 'Activity', 'time:timestamp': 'Start Timestamp'}, inplace=True)
+    elif file_uploader.name.endswith(".xes"):
+        tp = NamedTemporaryFile(delete=False)
+        tp.write(file_uploader.getvalue())
+        tp.close()
+        df = pm4py.convert_to_dataframe(pm4py.read_xes(tp.name))
+        os.unlink(tp.name)
+        df = df.drop(
+            columns=['concept:name', 'lifecycle:transition', 'case:concept:name', 'case:variant', 'case:creator'])
+        df.rename(columns={'case:variant-index': id, 'Activity': 'Activity', 'time:timestamp': 'Start Timestamp'}, inplace=True)
     else:
         raise Exception("Invalid file")
 
