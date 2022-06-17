@@ -4,7 +4,14 @@ from definitions import *
 uploader = st.sidebar.file_uploader("Etykietka")
 
 if uploader is not None:
-    st.sidebar.write(uploader.name)
     graph = read_file(uploader)
     st.write(graph)
     st.image(draw_graphs(graph))
+
+else:
+    st.title("Flow diagram visualizer")
+    st.write(
+        '''
+        Start by uploading a CSV file using sidebar controls.
+        '''
+    )

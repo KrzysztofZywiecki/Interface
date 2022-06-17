@@ -2,7 +2,7 @@ import pygraphviz as pgv
 import itertools
 from collections import defaultdict
 from typing import Dict, Set
-from PIL import Image
+from PIL import Image, ImageOps
 from collections import Counter
 from ipywidgets import interact
 import ipywidgets as widgets
@@ -10,8 +10,10 @@ import csv
 import pandas as pd
 import pm4py
 from collections import defaultdict
+import numpy as np
 from collections import Counter
 from io import StringIO
+import streamlit as st
 
 def get_causality(direct_succession) -> Dict[str, Set[str]]:
     causality = defaultdict(set)
@@ -246,7 +248,7 @@ def draw_graphs(df):
 
 
 
-def read_file(file_uploader, id="Case ID", event_tresh=0):
+def read_file(file_uploader, id="Case ID"):
     if file_uploader.name.endswith(".csv"):
         stringio = StringIO(file_uploader.getvalue().decode("utf-8"))
         df = pd.read_csv(stringio)
@@ -265,7 +267,7 @@ def read_file(file_uploader, id="Case ID", event_tresh=0):
           .agg({'Activity': lambda x: list(x)})
           )
 
-    event_filter = count_and_filter_number_of_occurrences_of_activity(df, event_tresh)
+    event_filter = count_and_filter_number_of_occurrences_of_activity(df)
 
     df['Activity'] = df['Activity'].apply(lambda event_log: list(filter(lambda x: event_filter[x] > 0, event_log)))
     df['Activity'] = df['Activity'].apply(lambda event_log: list(map(lambda x: x + " - " + str(event_filter[x]), event_log)))
@@ -273,9 +275,11 @@ def read_file(file_uploader, id="Case ID", event_tresh=0):
     df = df[df['Activity'].notna()]
     return df
 
-def count_and_filter_number_of_occurrences_of_activity(df, event_tresh):
+def count_and_filter_number_of_occurrences_of_activity(df):
     flatten_list = [j for row in df['Activity'] for j in row]
     event_count = Counter(flatten_list)
+    max_val = event_count.most_common()[0][1]
+    event_tresh = st.slider("Set event treshold", 0, max_val, 0)
     filter_values = [d for d in flatten_list if event_count[d] >= event_tresh]
     counted_filtered_values = Counter(filter_values)
     return counted_filtered_values
